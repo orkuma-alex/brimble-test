@@ -8,7 +8,7 @@ A one-page deployment pipeline: submit a Git URL or upload a ZIP, watch it build
 
 ```bash
 # Clone and start
-git clone <your-repo-url>
+git clone https://github.com/orkuma-alex/brimble-test.git
 cd brimble-test
 
 # Copy env (defaults work out of the box)
@@ -202,7 +202,7 @@ The `sample-app/` directory contains a minimal Node.js HTTP server that responds
 
 ```
 # In the UI, submit:
-Git URL: https://github.com/<your-fork>/brimble-test
+Git URL: https://github.com/orkuma-alex/brimble-test.git
 # (the repo contains sample-app/ — Railpack will detect Node.js and build it)
 
 # Or zip the sample-app folder and upload it directly
@@ -210,7 +210,18 @@ Git URL: https://github.com/<your-fork>/brimble-test
 
 After deployment, visit the URL shown in the deployment card.
 
+---
 
+## Time Estimate
+
+~12–14 hours over two sessions:
+- Infra + pipeline design: 3h
+- Backend (API + DB + pipeline): 4h
+- Frontend (components + design system + hooks): 3h
+- Integration + debugging: 2h
+- README: 1h
+
+---
 
 ## Brimble Deploy + Feedback
 
