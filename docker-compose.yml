@@ -1,0 +1,75 @@
+name: brimble
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: brimble_caddy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./caddy.json:/etc/caddy/caddy.json:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app_net
+    depends_on:
+      - backend
+      - frontend
+    command: caddy run --config /etc/caddy/caddy.json
+    restart: unless-stopped
+
+  buildkit:
+    image: moby/buildkit:latest
+    container_name: buildkit
+    privileged: true
+    networks:
+      - app_net
+    volumes:
+      - buildkit_data:/var/lib/buildkit
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: brimble_backend
+    environment:
+      DATABASE_URL: /data/db/brimble.db
+      CADDY_ADMIN_URL: http://caddy:2019
+      DOCKER_NETWORK: brimble_app_net
+      BUILDKIT_HOST: docker-container://buildkit
+      PORT: "3000"
+      HOST_BASE_URL: ${HOST_BASE_URL:-http://localhost:8080}
+    volumes:
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app_net
+    depends_on:
+      - buildkit
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: brimble_frontend
+    networks:
+      - app_net
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+  buildkit_data:
+
+networks:
+  app_net:
+    driver: bridge
+    name: brimble_app_net

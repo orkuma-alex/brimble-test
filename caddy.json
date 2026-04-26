@@ -1,0 +1,38 @@
+{
+  "admin": {
+    "listen": "0.0.0.0:2019",
+    "enforce_origin": false,
+    "origins": ["caddy:2019", "localhost:2019", "127.0.0.1:2019"]
+  },
+  "apps": {
+    "http": {
+      "servers": {
+        "main": {
+          "listen": [":80"],
+          "routes": [
+            {
+              "@id": "api-route",
+              "match": [{ "path": ["/api/*"] }],
+              "handle": [
+                {
+                  "handler": "reverse_proxy",
+                  "upstreams": [{ "dial": "backend:3000" }],
+                  "flush_interval": -1
+                }
+              ]
+            },
+            {
+              "@id": "frontend-route",
+              "handle": [
+                {
+                  "handler": "reverse_proxy",
+                  "upstreams": [{ "dial": "frontend:80" }]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
